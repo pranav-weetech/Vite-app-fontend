@@ -1,0 +1,53 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+
+jobs:
+  frontend-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: 🛎️ Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # ==========================
+      # INSTALL + BUILD
+      # ==========================
+      - name: 📦 Install frontend dependencies
+        run: npm install
+
+      - name: 🏗️ Build frontend
+        run: npm run build
+
+      # ==========================
+      # DEPLOY DEV (PORT 81)
+      # ==========================
+      - name: 🚀 Deploy to DEV
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          echo "Deploying DEV build..."
+          sudo rm -rf /var/www/app-dev/*
+          sudo cp -r dist/* /var/www/app-dev/
+          sudo nginx -s reload || sudo systemctl restart nginx
+          echo "DEV deploy completed!"
+
+      # ==========================
+      # DEPLOY PROD (PORT 80)
+      # ==========================
+      - name: 🚀 Deploy to PROD
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "Deploying PROD build..."
+          sudo rm -rf /var/www/app-prod/*
+          sudo cp -r dist/* /var/www/app-prod/
+          sudo nginx -s reload || sudo systemctl restart nginx
+          echo "PROD deploy completed!"
