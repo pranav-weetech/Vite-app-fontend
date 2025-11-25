@@ -8,7 +8,7 @@ on:
 
 jobs:
   frontend-deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       # Step 1: Checkout the repository
@@ -38,7 +38,7 @@ jobs:
           sudo cp -r dist/* /var/www/app-dev/
           sudo systemctl restart nginx || echo "Failed to restart Nginx"
           echo "DEV deploy completed!"
-
+ 
       # Step 6: Deploy to PROD (Port 80)
       - name: 🚀 Deploy to PROD
         if: github.ref == 'refs/heads/main'  # Deploy only from main branch
