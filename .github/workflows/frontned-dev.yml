@@ -8,46 +8,43 @@ on:
 
 jobs:
   frontend-deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - name: 🛎️ Checkout repository
         uses: actions/checkout@v3
 
+      # Step 2: Set up Node.js
       - name: 🔧 Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: '18'  # Specify the node version you need
 
-      # ==========================
-      # INSTALL + BUILD
-      # ==========================
+      # Step 3: Install dependencies
       - name: 📦 Install frontend dependencies
         run: npm install
 
+      # Step 4: Build the frontend
       - name: 🏗️ Build frontend
         run: npm run build
 
-      # ==========================
-      # DEPLOY DEV (PORT 81)
-      # ==========================
+      # Step 5: Deploy to DEV (Port 81)
       - name: 🚀 Deploy to DEV
-        if: github.ref == 'refs/heads/dev'
+        if: github.ref == 'refs/heads/dev'  # Deploy only from dev branch
         run: |
-          echo "Deploying DEV build..."
+          echo "Deploying to DEV environment..."
           sudo rm -rf /var/www/app-dev/*
           sudo cp -r dist/* /var/www/app-dev/
-          sudo nginx -s reload || sudo systemctl restart nginx
+          sudo systemctl restart nginx || echo "Failed to restart Nginx"
           echo "DEV deploy completed!"
 
-      # ==========================
-      # DEPLOY PROD (PORT 80)
-      # ==========================
+      # Step 6: Deploy to PROD (Port 80)
       - name: 🚀 Deploy to PROD
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main'  # Deploy only from main branch
         run: |
-          echo "Deploying PROD build..."
+          echo "Deploying to PROD environment..."
           sudo rm -rf /var/www/app-prod/*
           sudo cp -r dist/* /var/www/app-prod/
-          sudo nginx -s reload || sudo systemctl restart nginx
+          sudo systemctl restart nginx || echo "Failed to restart Nginx"
           echo "PROD deploy completed!"
