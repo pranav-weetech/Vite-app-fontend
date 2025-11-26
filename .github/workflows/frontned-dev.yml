@@ -50,10 +50,10 @@ jobs:
         run: |
           echo "Deleting old prod build..."
           sudo rm -rf /var/www/app-prod/*
-          
+
           echo "Copying new dist..."
           sudo cp -r /home/ubuntu/frontend/dist/* /var/www/app-prod/
-          
+
           echo "Changing ownership to www-data..."
           sudo chown -R www-data:www-data /var/www/app-prod
 
