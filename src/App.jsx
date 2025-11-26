@@ -13,6 +13,7 @@ import {
 // Branch-aware
 const isDev = import.meta.env.VITE_NODE_ENV === "development";
 const apiBase = import.meta.env.VITE_API_BASE;
+console.log(`isDev: ${isDev}`);
 
 const App = () => {
   const dispatch = useDispatch();
