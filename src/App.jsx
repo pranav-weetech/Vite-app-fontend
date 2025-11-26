@@ -12,8 +12,8 @@ import {
 
 // Branch-aware
 const isDev = import.meta.env.VITE_NODE_ENV === "development";
+console.log('isDev: ', isDev);
 const apiBase = import.meta.env.VITE_API_BASE;
-console.log(`isDev: ${isDev}`);
 
 const App = () => {
   const dispatch = useDispatch();
@@ -92,7 +92,7 @@ const App = () => {
       <div className="main-content">
         <header className="app-header">
           <div className="app-logo">📋</div>
-          <h1 className="app-title">Dev TaskFlow Pro</h1>
+          <h1 className="app-title">Dev-main TaskFlow Pro</h1>
           {isDev && (
             <span
               className="dev-badge"
