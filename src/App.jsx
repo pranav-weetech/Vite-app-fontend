@@ -10,11 +10,9 @@ import {
   fetchTodos,
 } from "./redux/taskSlice";
 
-// ================================
-// Dev / Prod detection
-// ================================
-// Dev runs on port 81, Prod runs on port 80
-const isDev = window.location.port === "81";
+// Branch-aware
+const isDev = import.meta.env.VITE_NODE_ENV === "development";
+const apiBase = import.meta.env.VITE_API_BASE;
 
 const App = () => {
   const dispatch = useDispatch();
@@ -91,12 +89,9 @@ const App = () => {
   return (
     <div className="app-container">
       <div className="main-content">
-        {/* ================= Header ================= */}
         <header className="app-header">
           <div className="app-logo">📋</div>
-          <h1 className="app-title">
-            {isDev ? "Dev-TaskFlow Pro" : "TaskFlow Pro"}
-          </h1>
+          <h1 className="app-title">Dev-main TaskFlow Pro</h1>
           {isDev && (
             <span
               className="dev-badge"
@@ -105,9 +100,10 @@ const App = () => {
               DEV
             </span>
           )}
+          dev
         </header>
 
-        {/* ================= Input Section ================= */}
+        {/* Input section */}
         <section className="input-section">
           <div className="input-card">
             <div className="input-form">
@@ -140,7 +136,7 @@ const App = () => {
           </div>
         </section>
 
-        {/* ================= Stats Section ================= */}
+        {/* Stats */}
         {totalTasks > 0 && (
           <section className="stats-section">
             <div className="stats-card">
@@ -174,7 +170,7 @@ const App = () => {
           </section>
         )}
 
-        {/* ================= Task List ================= */}
+        {/* Task list */}
         <section className="task-list-section">
           <TaskList
             items={Array.isArray(task) ? task : []}
