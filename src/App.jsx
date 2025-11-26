@@ -92,7 +92,7 @@ const App = () => {
       <div className="main-content">
         <header className="app-header">
           <div className="app-logo">📋</div>
-          <h1 className="app-title">Dev-main TaskFlow Pro</h1>
+          <h1 className="app-title">main TaskFlow Pro</h1>
           {isDev && (
             <span
               className="dev-badge"
