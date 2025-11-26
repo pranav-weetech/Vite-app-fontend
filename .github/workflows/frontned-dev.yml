@@ -1,50 +1,50 @@
-name: Frontend CI/CD
+name: Deploy → DEV (port 81)
 
 on:
   push:
     branches:
       - dev
-      - main
 
 jobs:
-  frontend-deploy:
-    runs-on: self-hosted
+  build-and-deploy:
+    # run on your self-hosted runner (adjust labels if needed)
+    runs-on: [self-hosted, linux, x64]
 
     steps:
-      # Step 1: Checkout the repository
-      - name: 🛎️ Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'  # Specify the node version you need
+          node-version: "18"
 
-      # Step 3: Install dependencies
-      - name: 📦 Install frontend dependencies
-        run: npm install
-
-      # Step 4: Build the frontend
-      - name: 🏗️ Build frontend
-        run: npm run build
-
-      # Step 5: Deploy to DEV (Port 81)
-      - name: 🚀 Deploy to DEV
-        if: github.ref == 'refs/heads/dev'  # Deploy only from dev branch
+      - name: Install frontend deps & build
+        working-directory: ./frontend
         run: |
-          echo "Deploying to DEV environment..."
-          sudo rm -rf /var/www/app-dev/*
-          sudo cp -r dist/* /var/www/app-dev/
-          sudo systemctl restart nginx || echo "Failed to restart Nginx"
-          echo "DEV deploy completed!"
- 
-      # Step 6: Deploy to PROD (Port 80)
-      - name: 🚀 Deploy to PROD
-        if: github.ref == 'refs/heads/main'  # Deploy only from main branch
+          npm ci
+          npm run build
+
+      - name: Ensure nginx.sh is executable (if exists)
         run: |
-          echo "Deploying to PROD environment..."
-          sudo rm -rf /var/www/app-prod/*
-          sudo cp -r dist/* /var/www/app-prod/
-          sudo systemctl restart nginx || echo "Failed to restart Nginx"
-          echo "PROD deploy completed!"
+          if [ -f /home/ubuntu/nginx.sh ]; then
+            sudo chmod +x /home/ubuntu/nginx.sh || true
+          fi
+
+      - name: Deploy to DEV (use /home/ubuntu/nginx.sh if present)
+        run: |
+          # prefer using your existing script if it's present at /home/ubuntu/nginx.sh
+          if [ -f /home/ubuntu/nginx.sh ]; then
+            echo "Using /home/ubuntu/nginx.sh to deploy DEV..."
+            sudo /home/ubuntu/nginx.sh dev
+          else
+            echo "nginx.sh not found — performing inline deploy for DEV..."
+            sudo rm -rf /var/www/app-dev/* || true
+            sudo cp -r frontend/dist/* /var/www/app-dev/
+            sudo chown -R www-data:www-data /var/www/app-dev || true
+            sudo systemctl restart nginx
+          fi
+
+      - name: Post-deploy status (DEV)
+        run: |
+          echo "DEV deployed. Check http://75.101.222.232:81"
