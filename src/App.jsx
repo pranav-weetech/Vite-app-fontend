@@ -10,9 +10,10 @@ import {
   fetchTodos,
 } from "./redux/taskSlice";
 
-// Branch-aware
-const isDev = import.meta.env.VITE_NODE_ENV === "development";
-const apiBase = import.meta.env.VITE_API_BASE;
+// Detect if running in dev environment
+// Dev runs on port 81, Prod runs on port 80
+const isDev = window.location.port === "81";
+const apiBase = ""; // keep your existing API setup as is
 
 const App = () => {
   const dispatch = useDispatch();
@@ -91,7 +92,9 @@ const App = () => {
       <div className="main-content">
         <header className="app-header">
           <div className="app-logo">📋</div>
-          <h1 className="app-title">Dev-main TaskFlow Pro</h1>
+          <h1 className="app-title">
+            {isDev ? "Dev TaskFlow Pro" : "TaskFlow Pro"}
+          </h1>
           {isDev && (
             <span
               className="dev-badge"
@@ -99,7 +102,7 @@ const App = () => {
             >
               DEV
             </span>
-          )}dev
+          )}
         </header>
 
         {/* Input section */}
