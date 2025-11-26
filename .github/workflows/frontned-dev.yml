@@ -20,9 +20,15 @@ jobs:
         run: |
           echo "Current directory:"
           pwd
+<<<<<<< HEAD
           echo "Pulling latest changes from main branch..."
           git fetch origin main
           git reset --hard origin/main
+=======
+          echo "Pulling latest changes from dev branch..."
+          git fetch origin dev
+          git reset --hard origin/dev
+>>>>>>> dev
           git clean -fd
 
       # 2️⃣ Setup Node.js (use system default if unknown)
