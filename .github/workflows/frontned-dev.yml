@@ -1,4 +1,4 @@
-name: Deploy to Dev (Port 81)
+name: Deploy Frontend to Dev
 
 on:
   push:
@@ -8,32 +8,24 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
+    name: Deploy on EC2 Runner
 
     steps:
-      - name: Checkout code
+      # 1️⃣ Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with:
-          node-version: 18
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build project
-        run: npm run build
-
-      - name: Deploy build to /var/www/app-dev
+      # 3️⃣ Build frontend
+      - name: Install dependencies & build frontend
+        working-directory: ./frontend
         run: |
-          echo "Deleting old dev build..."
-          sudo rm -rf /var/www/app-dev/dist
+          npm ci
+          npm run build
 
-          echo "Copying new dist..."
-          sudo cp -r dist /var/www/app-dev/
-
-      - name: Restart Nginx
-        run: sudo systemctl restart nginx
-
-      - name: Run nginx.sh (your script)
+      # 4️⃣ Run nginx.sh on server (runner is already on EC2)
+      - name: Deploy frontend using nginx.sh
         run: sudo bash /home/ubuntu/nginx.sh
