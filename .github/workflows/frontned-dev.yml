@@ -1,4 +1,4 @@
-name: Deploy to Prod (Port 80)
+name: Deploy to Dev (Port 81)
 
 on:
   push:
@@ -14,22 +14,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1.1️⃣ Pull latest changes explicitly
+      # 1.1️⃣ Pull latest changes explicitly (force sync to avoid divergence)
       - name: Pull latest changes
         working-directory: /home/ubuntu/frontend
         run: |
           echo "Current directory:"
           pwd
-          echo "Pulling latest changes from main branch..."
-          git reset --hard
+          echo "Pulling latest changes from dev branch..."
+          git fetch origin dev
+          git reset --hard origin/dev
           git clean -fd
-          git pull origin main
 
-      # 2️⃣ Setup Node.js
+      # 2️⃣ Setup Node.js (use system default if unknown)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 18  # matches your server, adjust if needed
 
       # 3️⃣ Install frontend dependencies
       - name: Install dependencies
@@ -45,19 +45,19 @@ jobs:
           echo "Building frontend..."
           npm run build
 
-      # 5️⃣ Deploy the build to prod webroot
-      - name: Deploy build to /var/www/app-prod
+      # 5️⃣ Deploy the build to dev webroot
+      - name: Deploy build to /var/www/app-dev
         run: |
-          echo "Deleting old prod build..."
-          sudo rm -rf /var/www/app-prod/*
+          echo "Deleting old dev build..."
+          sudo rm -rf /var/www/app-dev/*
 
           echo "Copying new dist..."
-          sudo cp -r /home/ubuntu/frontend/dist/* /var/www/app-prod/
+          sudo cp -r /home/ubuntu/frontend/dist/* /var/www/app-dev/
 
           echo "Changing ownership to www-data..."
-          sudo chown -R www-data:www-data /var/www/app-prod
+          sudo chown -R www-data:www-data /var/www/app-dev
 
-      # 6️⃣ Restart Nginx
+      # 6️⃣ Restart Nginx to reflect changes
       - name: Restart Nginx
         run: |
           echo "Restarting Nginx..."
