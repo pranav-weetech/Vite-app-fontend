@@ -1,50 +1,55 @@
-name: Deploy → DEV (port 81)
+name: Frontend CI/CD
 
 on:
   push:
     branches:
       - dev
+      - main
 
 jobs:
-  build-and-deploy:
-    # run on your self-hosted runner (adjust labels if needed)
-    runs-on: [self-hosted, linux, x64]
+  frontend-deploy:
+    runs-on: self-hosted
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: 🛎️ Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Use Node.js 18
-        uses: actions/setup-node@v4
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: "18"
+          node-version: 18
 
-      - name: Install frontend deps & build
-        working-directory: ./frontend
-        run: |
-          npm ci
-          npm run build
+      # ==========================
+      # FRONTEND BUILD
+      # ==========================
+      - name: 📦 Install frontend dependencies
+        working-directory: ./frontend-react
+        run: npm install
 
-      - name: Ensure nginx.sh is executable (if exists)
-        run: |
-          if [ -f /home/ubuntu/nginx.sh ]; then
-            sudo chmod +x /home/ubuntu/nginx.sh || true
-          fi
+      - name: 🏗️ Build frontend
+        working-directory: ./frontend-react
+        run: npm run build
 
-      - name: Deploy to DEV (use /home/ubuntu/nginx.sh if present)
+      # ==========================
+      # DEV FRONTEND DEPLOY (PORT 81)
+      # ==========================
+      - name: 🚀 Deploy DEV frontend
+        if: github.ref == 'refs/heads/dev'
         run: |
-          # prefer using your existing script if it's present at /home/ubuntu/nginx.sh
-          if [ -f /home/ubuntu/nginx.sh ]; then
-            echo "Using /home/ubuntu/nginx.sh to deploy DEV..."
-            sudo /home/ubuntu/nginx.sh dev
-          else
-            echo "nginx.sh not found — performing inline deploy for DEV..."
-            sudo rm -rf /var/www/app-dev/* || true
-            sudo cp -r frontend/dist/* /var/www/app-dev/
-            sudo chown -R www-data:www-data /var/www/app-dev || true
-            sudo systemctl restart nginx
-          fi
+          echo "Deploying frontend to DEV (port 81)"
+          sudo rm -rf /var/www/app-dev/*
+          sudo cp -r frontend-react/dist/* /var/www/app-dev/
+          sudo nginx -s reload || sudo systemctl restart nginx
+          echo "DEV frontend deployed!"
 
-      - name: Post-deploy status (DEV)
+      # ==========================
+      # PROD FRONTEND DEPLOY (PORT 80)
+      # ==========================
+      - name: 🚀 Deploy PROD frontend
+        if: github.ref == 'refs/heads/main'
         run: |
-          echo "DEV deployed. Check http://75.101.222.232:81"
+          echo "Deploying frontend to PROD (port 80)"
+          sudo rm -rf /var/www/app-prod/*
+          sudo cp -r frontend-react/dist/* /var/www/app-prod/
+          sudo nginx -s reload || sudo systemctl restart nginx
+          echo "PROD frontend deployed!"
