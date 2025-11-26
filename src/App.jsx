@@ -10,10 +10,11 @@ import {
   fetchTodos,
 } from "./redux/taskSlice";
 
-// Detect if running in dev environment
+// ================================
+// Dev / Prod detection
+// ================================
 // Dev runs on port 81, Prod runs on port 80
 const isDev = window.location.port === "81";
-const apiBase = ""; // keep your existing API setup as is
 
 const App = () => {
   const dispatch = useDispatch();
@@ -90,6 +91,7 @@ const App = () => {
   return (
     <div className="app-container">
       <div className="main-content">
+        {/* ================= Header ================= */}
         <header className="app-header">
           <div className="app-logo">📋</div>
           <h1 className="app-title">
@@ -105,7 +107,7 @@ const App = () => {
           )}
         </header>
 
-        {/* Input section */}
+        {/* ================= Input Section ================= */}
         <section className="input-section">
           <div className="input-card">
             <div className="input-form">
@@ -138,7 +140,7 @@ const App = () => {
           </div>
         </section>
 
-        {/* Stats */}
+        {/* ================= Stats Section ================= */}
         {totalTasks > 0 && (
           <section className="stats-section">
             <div className="stats-card">
@@ -172,7 +174,7 @@ const App = () => {
           </section>
         )}
 
-        {/* Task list */}
+        {/* ================= Task List ================= */}
         <section className="task-list-section">
           <TaskList
             items={Array.isArray(task) ? task : []}
