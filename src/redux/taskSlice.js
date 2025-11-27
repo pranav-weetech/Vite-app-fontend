@@ -3,7 +3,7 @@ import axios from "axios";
 
 const dev = window.location.port === "5173"; // running locally with vite dev server
 const BASE_URL = dev
-  ? "http://localhost:5000/api/todo"  // local backend Flask
+  ? "http://75.101.222.232:5000/api/todo"  // local backend Flask
   : "/api/todo"; 
 
 // ========================================

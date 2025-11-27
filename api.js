@@ -9,9 +9,8 @@ const dev = window.location.port === "5173";
 // - Dev:   http://localhost:5000/api/todo  (talks directly to backend while developing)
 // - Prod:  /api/todo                        (Nginx reverse proxy exposes backend under /api)
 const API_BASE = dev
-  ? "http://localhost:5000/api/todo"
+  ? "http://75.101.222.232:5000/api/todo"  // call EC2 backend even in dev
   : "/api/todo";
-
 // ==============================
 // GET all todos
 // ==============================
